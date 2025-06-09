@@ -1,0 +1,389 @@
+<div id="app">
+    <div class="top-bar">
+      <h2>Clientes</h2>
+      <h2>Agregar Cliente</h2>
+      <form id="form-cliente" style="margin-bottom: 20px;">
+        <input type="text" id="nombre" placeholder="Nombre" required>
+        <input type="text" id="direccion" placeholder="Dirección" required>
+        <input type="text" id="horario" placeholder="Horario (opcional)">
+        <button type="submit">➕ Agregar</button>
+      </form>
+      <hr>
+      <div id="resumen-bultos">
+        <strong>Totales por color:</strong>
+        <ul>
+          <li style="color:red">🔴 Camion 1: <span id="suma-rojo">0</span> - Cant. Máx. 400</li>
+          <li style="color:green">🟢 Camion 2: <span id="suma-verde">0</span>- Cant. Máx. 400</li>
+          <li style="color:#1E90FF">🔵 Camion 3: <span id="suma-azul">0</span>- Cant. Máx. 400</li>
+        </ul>
+      </div>
+    </div>
+    
+<div class="main-content">
+  
+  <div class="checkbox-list">
+    
+    <div style="margin-bottom: 10px;">
+  <button class="filtro-color" data-color="">Todos</button>
+  <button class="filtro-color" data-color="border-red">🔴 Rojo</button>
+  <button class="filtro-color" data-color="border-green">🟢 Verde</button>
+  <button class="filtro-color" data-color="border-blue">🔵 Azul</button>
+</div>
+    <button id="seleccionar-todos">✅ Seleccionar todos</button>
+    <button id="deseleccionar-todos">❌ Deseleccionar todos</button>
+    <br>
+    <br>
+    <!-- 🔍 Input para filtrar clientes -->
+    
+    <input type="text" id="filtro-clientes" placeholder="Buscar cliente..." style="width: 100%; padding: 6px; margin-bottom: 10px;">
+
+    <!-- 🧾 Lista de clientes -->
+    <div id="checkboxes"></div>
+  </div>
+
+  <!-- 🗺️ Mapa -->
+  <div id="map"></div>
+</div>
+
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const map = L.map('map').setView([-34.53423856357239, -58.54456614470144], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+
+  // Punto fijo de salida (ej: panadería)
+const puntoSalida = {
+  lat: -34.53423856357239,
+  lng: -58.54456614470144
+};
+
+const iconoSalida = L.divIcon({
+  className: 'custom-marker',
+  html: `<i class="fa-solid fa-industry" style="color: orange; font-size: 20px;"></i>`,
+  iconSize: [20, 20],
+  iconAnchor: [10, 20]
+});
+
+L.marker([puntoSalida.lat, puntoSalida.lng], { icon: iconoSalida })
+  .addTo(map)
+  .bindPopup("🏠 Punto de Salida");
+
+
+
+
+
+
+  let markers = {};
+
+  function updateMarker(c, color, bultos) {
+  if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
+  const icon = L.divIcon({
+    className: 'custom-marker',
+    html: `<i class="fa fa-map-marker" style="color:${color}; font-size:24px;"></i>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 24]
+  });
+  markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map).bindPopup(`
+    <strong>${c.nombre}</strong><br>
+    🕒 ${c.horario}<br>
+    📦 ${bultos} bultos<br>
+    🗺️ Zona: ${c.zona || 'Sin asignar'}
+  `);
+}
+
+function removeMarker(c) {
+  if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
+}
+
+
+  const drawnItems = new L.FeatureGroup();
+  map.addLayer(drawnItems);
+
+  const drawControl = new L.Control.Draw({
+    draw: { polygon: true, polyline: false, rectangle: true, circle: false, marker: false, circlemarker: false },
+    edit: { featureGroup: drawnItems }
+  });
+  map.addControl(drawControl);
+
+  map.on(L.Draw.Event.CREATED, function (event) {
+    const layer = event.layer;
+    drawnItems.addLayer(layer);
+
+    const nombreZona = prompt('Nombre de la zona:');
+    const color = prompt('Color (ej: blue, red, green):');
+    const original = layer.getLatLngs();
+    const coordenadas = original.map(anillo => anillo.map(p => [p.lat, p.lng]));
+
+    if (nombreZona && coordenadas.length) {
+      fetch('/api/zonas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: nombreZona, coordenadas, color })
+      }).then(res => {
+        if (res.ok) {
+          alert(`✅ Zona "${nombreZona}" con color "${color}" guardada`);
+          layer.bindPopup(`Zona: ${nombreZona}`).openPopup();
+        } else {
+          alert('❌ Error al guardar la zona');
+        }
+      });
+    }
+  });
+
+  fetch('/api/zonas')
+    .then(res => res.json())
+    .then(zonas => {
+      zonas.forEach(zona => {
+        const coords = zona.coordenadas.map(anillo => anillo.map(p => [p[0], p[1]]));
+        const popupContent = document.createElement('div');
+        popupContent.innerHTML = `
+          <strong>Zona: ${zona.nombre}</strong><br>
+          <button class="btn-eliminar-zona" data-id="${zona._id}">🗑️ Eliminar</button>
+        `;
+        const poligono = L.polygon(coords, { color: zona.color, fillColor: zona.color, fillOpacity: 0.2 })
+          .addTo(map).bindPopup(popupContent);
+        popupContent.querySelector('.btn-eliminar-zona').addEventListener('click', () => {
+          if (confirm('¿Eliminar esta zona?')) {
+            fetch(`/api/zonas/${zona._id}`, { method: 'DELETE' }).then(res => {
+              if (res.ok) {
+                alert('✅ Zona eliminada');
+                location.reload();
+              } else alert('❌ Error al eliminar zona');
+            });
+          }
+        });
+      });
+    });
+document.getElementById('form-cliente').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById('nombre').value.trim();
+  const direccion = document.getElementById('direccion').value.trim();
+  const horario = document.getElementById('horario').value.trim();
+  const bultos = parseInt(document.getElementById('bultos')?.value.trim()) || 0;
+
+  if (!nombre || !direccion || isNaN(bultos)) return alert('Completá todos los campos obligatorios.');
+
+  try {
+    const res = await fetch('/nuevo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ nombre, direccion, horario, bultos })
+    });
+    res.ok ? location.reload() : alert('❌ Error al agregar cliente');
+  } catch (err) {
+    alert('❌ Error al agregar cliente');
+  }
+});
+
+
+  fetch('/api/clientes')
+    .then(res => res.json())
+    .then(clientes => {
+      window.clientesData = clientes; // ✅ esta línea es necesaria
+      const contenedor = document.getElementById('checkboxes');
+      clientes.forEach(cliente => {
+        const div = document.createElement('div');
+        div.classList.add('cliente-info', 'fila-cliente', 'border-default');
+
+        div.innerHTML = `
+          <input type="checkbox" class="cliente-checkbox" id="${cliente.nombre}">
+          <div class="info-izq">
+            <strong>${cliente.nombre}</strong>
+            <div>🕒 ${cliente.horario || 'Sin horario'}</div>
+            <div>📦 <input type="number" value="${cliente.bultos || 0}" min="0" style="width:50px;"> bultos</div>
+            <input type="hidden" id="color-${cliente.nombre}" value="#1E90FF">
+          </div>
+          <div class="info-der">
+            🎨
+            <div class="color-options">
+              <button class="color-btn" data-color="#DC143C" style="background:#DC143C;"></button>
+              <button class="color-btn" data-color="green" style="background:green;"></button>
+              <button class="color-btn" data-color="#1E90FF" style="background:#1E90FF;"></button>
+            </div>
+          </div>
+        `;
+
+        contenedor.appendChild(div);
+
+        const checkbox = div.querySelector('.cliente-checkbox');
+        const colorInput = div.querySelector('input[type="hidden"]');
+        const bultosInput = div.querySelector('input[type="number"]');
+        const colorButtons = div.querySelectorAll('.color-btn');
+
+        const applyColor = (color) => {
+          div.classList.remove('border-red', 'border-green', 'border-blue', 'border-default');
+          if (color === '#DC143C') div.classList.add('border-red');
+          else if (color === 'green') div.classList.add('border-green');
+          else div.classList.add('border-blue');
+        };
+
+        colorButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const color = btn.dataset.color;
+            colorInput.value = color;
+            applyColor(color);
+            if (checkbox.checked) updateMarker(cliente, color, bultosInput.value);
+            actualizarTotales();
+          });
+        });
+
+checkbox.addEventListener('change', () => {
+  const color = colorInput.value;
+  if (checkbox.checked) {
+    applyColor(color);
+    updateMarker(cliente, color, bultosInput.value);
+  } else {
+    div.classList.remove('border-red', 'border-green', 'border-blue');
+    div.classList.add('border-default'); // vuelve a gris
+    removeMarker(cliente);
+  }
+  actualizarTotales();
+});
+        bultosInput.addEventListener('input', () => {
+          if (checkbox.checked && markers[cliente.nombre]) updateMarker(cliente, colorInput.value, bultosInput.value);
+          actualizarTotales();
+        });
+
+        function updateMarker(c, color, bultos) {
+          if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
+          const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `<i class="fa fa-map-marker" style="color:${color}; font-size:24px;"></i>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 24]
+          });
+          markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map).bindPopup(`
+            <strong>${c.nombre}</strong><br>
+            🕒 ${c.horario}<br>
+            📦 ${bultos} bultos<br>
+            🗺️ Zona: ${c.zona || 'Sin asignar'}
+          `);
+        }
+
+        function removeMarker(c) {
+          if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
+        }
+
+        // Hover directo sin click
+        div.addEventListener('mouseover', () => markers[cliente.nombre]?._icon?.classList.add('hovered'));
+        div.addEventListener('mouseleave', () => markers[cliente.nombre]?._icon?.classList.remove('hovered'));
+
+        setTimeout(() => {
+          const rect = div.getBoundingClientRect();
+          const x = window.event?.clientX;
+          const y = window.event?.clientY;
+          if (x && y && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom)
+            markers[cliente.nombre]?._icon?.classList.add('hovered');
+        }, 100);
+      });
+
+      new Sortable(contenedor, { animation: 150, ghostClass: 'drag-ghost' });
+    });
+
+  function actualizarTotales() {
+    let rojo = 0, verde = 0, azul = 0;
+    document.querySelectorAll('.cliente-info').forEach(div => {
+      const checkbox = div.querySelector('.cliente-checkbox');
+
+      const color = div.querySelector('input[type="hidden"]').value;
+      const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
+      if (checkbox.checked) {
+        if (color === '#DC143C') rojo += bultos;
+        else if (color === 'green') verde += bultos;
+        else azul += bultos;
+      }
+    });
+    document.getElementById('suma-rojo').textContent = rojo;
+    document.getElementById('suma-verde').textContent = verde;
+    document.getElementById('suma-azul').textContent = azul;
+  }
+
+    const filtroInput = document.getElementById("filtro-clientes");
+    const listaClientes = document.getElementById("checkboxes");
+
+    filtroInput.addEventListener("input", () => {
+
+      const filtro = filtroInput.value.toLowerCase();
+
+      const clientes = listaClientes.querySelectorAll(".cliente-info");
+      clientes.forEach(cliente => {
+        const texto = cliente.textContent.toLowerCase();
+        cliente.style.display = texto.includes(filtro) ? "flex" : "none";
+    });
+  
+  });
+
+  
+// 🎨 Filtro por color (botones)
+document.querySelectorAll('.filtro-color').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const colorClase = btn.dataset.color;
+    document.querySelectorAll('.cliente-info').forEach(cliente => {
+      if (!colorClase || cliente.classList.contains(colorClase)) {
+        cliente.style.display = "flex";
+      } else {
+        cliente.style.display = "none";
+      }
+    });
+    // Limpiar el input para evitar doble filtro
+    filtroInput.value = "";
+  });
+});
+
+document.getElementById('seleccionar-todos').addEventListener('click', () => {
+  document.querySelectorAll('.cliente-info').forEach(div => {
+    const checkbox = div.querySelector('.cliente-checkbox');
+
+    if (!checkbox.checked) checkbox.checked = true;
+
+    const color = div.querySelector('input[type="hidden"]').value;
+    const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
+    const nombre = checkbox.id;
+
+    // Aplicar color visual
+    div.classList.remove('border-default', 'border-red', 'border-green', 'border-blue');
+    if (color === '#DC143C') div.classList.add('border-red');
+    else if (color === 'green') div.classList.add('border-green');
+    else div.classList.add('border-blue');
+
+    // Agregar marcador
+    const cliente = { nombre, lat: 0, lng: 0, horario: '', zona: '' }; // dummy temporal
+    const realCliente = window.clientesData?.find(c => c.nombre === nombre); // usar si querés data real
+    if (realCliente) {
+      cliente.lat = realCliente.lat;
+      cliente.lng = realCliente.lng;
+      cliente.horario = realCliente.horario;
+      cliente.zona = realCliente.zona;
+    }
+    updateMarker(cliente, color, bultos);
+  });
+
+  actualizarTotales();
+});
+
+document.getElementById('deseleccionar-todos').addEventListener('click', () => {
+  document.querySelectorAll('.cliente-info').forEach(div => {
+    const checkbox = div.querySelector('.cliente-checkbox');
+
+    checkbox.checked = false;
+
+    div.classList.remove('border-red', 'border-green', 'border-blue');
+    div.classList.add('border-default');
+
+    const nombre = checkbox.id;
+    const cliente = window.clientesData?.find(c => c.nombre === nombre);
+    if (cliente) removeMarker(cliente);
+  });
+
+  actualizarTotales();
+});
+
+
+
+});
+
+
+
+</script>

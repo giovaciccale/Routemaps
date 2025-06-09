@@ -1,0 +1,140 @@
+   html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .top-bar {
+      padding: 10px;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .checkbox-list {
+      width: 340px;
+      height: 100%;
+      overflow-y: auto;
+      padding: 10px;
+      border-right: 1px solid #ccc;
+      background: #f9f9f9;
+    }
+
+    #map {
+      flex-grow: 1;
+      height: 100%;
+    }
+
+
+
+
+.cliente-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 6px 10px;
+  margin-bottom: 6px;
+
+  border: 1px solid #ccc;
+  border-left: 5px solid #dfebf8; /* gris por defecto */
+  background-color: white;
+  border-radius: 6px;
+
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  transition: border-color 0.2s;
+
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+/* 📄 Contenido a la izquierda */
+.cliente-info .info-contenido {
+  flex-grow: 1;
+}
+
+.cliente-info strong {
+  font-size: 14px;
+  color: #333;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.cliente-info .color-options {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.color-btn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #666;
+  cursor: pointer;
+}
+
+.color-btn:hover {
+  transform: scale(1.2);
+}
+
+
+
+
+/* 🎯 Estilo del marcador */
+.custom-marker i {
+  text-shadow:
+    -1px -1px 0 white,
+    1px -1px 0 white,
+    -1px 1px 0 white,
+    1px 1px 0 white;
+  filter: drop-shadow(0 0 2px white);
+}
+
+/* ✨ Hover */
+.custom-marker.hovered i {
+  animation: pulse 1s infinite alternate;
+  transform: scale(1.3);
+  transition: 0.2s ease;
+  box-shadow: 0 0 12px 4px hsl(44, 92%, 62%);
+  z-index: 9999;
+}
+
+@keyframes pulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.8); }
+}
+
+/* Colores del borde izquierdo */
+.border-red { border-left-color: #DC143C !important; }
+.border-green { border-left-color: #28a745 !important; }
+.border-blue { border-left-color: #1E90FF !important; }
+.border-default { border-left-color: #dfebf8 !important; }
+
+.fila-cliente {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-izq {
+  flex-grow: 1;
+}
+
+.info-der {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
