@@ -2,10 +2,11 @@
   "name": "maps",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "main.js",
+"scripts": {
+  "start": "node app.js",
+  "electron": "electron ."
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -15,5 +16,8 @@
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
     "mongoose": "^8.15.1"
+  },
+  "devDependencies": {
+    "electron": "^36.4.0"
   }
 }

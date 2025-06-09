@@ -1,6 +1,7 @@
 <div id="app">
     <div class="top-bar">
-      <h2>Clientes</h2>
+      <h2>Hoja de Ruta - Trigo House Clientes</h2>
+      <br>
       <h2>Agregar Cliente</h2>
       <form id="form-cliente" style="margin-bottom: 20px;">
         <input type="text" id="nombre" placeholder="Nombre" required>
@@ -12,34 +13,33 @@
       <div id="resumen-bultos">
         <strong>Totales por color:</strong>
         <ul>
-          <li style="color:red">🔴 Camion 1: <span id="suma-rojo">0</span> - Cant. Máx. 400</li>
-          <li style="color:green">🟢 Camion 2: <span id="suma-verde">0</span>- Cant. Máx. 400</li>
-          <li style="color:#1E90FF">🔵 Camion 3: <span id="suma-azul">0</span>- Cant. Máx. 400</li>
+          <li style="color:red">🔴 Camion 1: <span id="suma-rojo">0</span> Bultos - Cant. Máx. 400</li>
+          <li style="color:green">🟢 Camion 2: <span id="suma-verde">0</span> Bultos - Cant. Máx. 400</li>
+          <li style="color:#1E90FF">🔵 Camion 3: <span id="suma-azul">0</span> Bultos - Cant. Máx. 400</li>
         </ul>
       </div>
     </div>
     
 <div class="main-content">
-  
-  <div class="checkbox-list">
-    
+<div class="checkbox-list">
+  <!-- 🔝 Sección fija -->
+  <div class="filtros-fijos">
     <div style="margin-bottom: 10px;">
-  <button class="filtro-color" data-color="">Todos</button>
-  <button class="filtro-color" data-color="border-red">🔴 Rojo</button>
-  <button class="filtro-color" data-color="border-green">🟢 Verde</button>
-  <button class="filtro-color" data-color="border-blue">🔵 Azul</button>
-</div>
+      <button class="filtro-color" data-color="">Todos</button>
+      <button class="filtro-color" data-color="border-red">🔴 Rojo</button>
+      <button class="filtro-color" data-color="border-green">🟢 Verde</button>
+      <button class="filtro-color" data-color="border-blue">🔵 Azul</button>
+    </div>
     <button id="seleccionar-todos">✅ Seleccionar todos</button>
+    <br>
     <button id="deseleccionar-todos">❌ Deseleccionar todos</button>
     <br>
-    <br>
-    <!-- 🔍 Input para filtrar clientes -->
-    
-    <input type="text" id="filtro-clientes" placeholder="Buscar cliente..." style="width: 100%; padding: 6px; margin-bottom: 10px;">
-
-    <!-- 🧾 Lista de clientes -->
-    <div id="checkboxes"></div>
+    <input type="text" id="filtro-clientes" placeholder="Buscar cliente..." style="width: 100%; padding: 6px; margin: 10px 0;">
   </div>
+
+  <!-- 🧾 Clientes scrollables -->
+  <div id="checkboxes" class="clientes-scroll"></div>
+</div>
 
   <!-- 🗺️ Mapa -->
   <div id="map"></div>
@@ -95,11 +95,21 @@ markerSalida.bindTooltip("Trigo House", {
 markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map);
 
 // 👉 Agregamos el tooltip al marcador del cliente
-markers[c.nombre].bindTooltip(`${c.nombre.toLowerCase()}`, {
-  permanent: false,          // 🔁 Solo aparece con hover
+const direccionCorta = c.direccion?.split(',')[0] || '';
+
+markers[c.nombre].bindTooltip(`
+  <div style="font-size: 13px; line-height: 1.4; max-width: 220px;">
+    <strong style="text-transform: uppercase;">${c.nombre}</strong><br>
+    <span style="color: #333;">📍 ${direccionCorta}</span>
+  </div>
+`, {
+  permanent: false,
   direction: 'top',
   className: 'tooltip-cliente'
 });
+
+
+
 }
 
 function removeMarker(c) {
@@ -266,11 +276,21 @@ checkbox.addEventListener('change', () => {
 markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map);
 
 // 👉 Agregamos el tooltip al marcador del cliente
-markers[c.nombre].bindTooltip(`${c.nombre.toLowerCase()}`, {
-  permanent: false,          // 🔁 Solo aparece con hover
+const direccionCorta = c.direccion?.split(',')[0] || '';
+
+markers[c.nombre].bindTooltip(`
+  <div style="font-size: 13px; line-height: 1.4; max-width: 220px;">
+    <strong style="text-transform: uppercase;">${c.nombre}</strong><br>
+    <span style="color: #333;">📍 ${direccionCorta}</span>
+  </div>
+`, {
+  permanent: false,
   direction: 'top',
   className: 'tooltip-cliente'
 });
+
+
+
         }
 
         function removeMarker(c) {
@@ -367,6 +387,7 @@ document.getElementById('seleccionar-todos').addEventListener('click', () => {
       cliente.lng = realCliente.lng;
       cliente.horario = realCliente.horario;
       cliente.zona = realCliente.zona;
+      cliente.direccion = realCliente.direccion; // ✅ Esta línea es clave
     }
     updateMarker(cliente, color, bultos);
   });
@@ -393,6 +414,18 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
 
 
 
+});
+
+
+// Botón de scroll hacia arriba
+const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+window.addEventListener("scroll", () => {
+  scrollTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
+});
+
+scrollTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 
