@@ -138,3 +138,16 @@
   align-items: center;
   gap: 5px;
 }
+
+
+.leaflet-tooltip.tooltip-cliente {
+  background-color: white;
+  color: black;
+  font-size: 12px;
+  font-family: sans-serif;
+  text-transform: lowercase;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}

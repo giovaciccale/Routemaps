@@ -66,9 +66,16 @@ const iconoSalida = L.divIcon({
   iconAnchor: [10, 20]
 });
 
-L.marker([puntoSalida.lat, puntoSalida.lng], { icon: iconoSalida })
+const markerSalida = L.marker([puntoSalida.lat, puntoSalida.lng], { icon: iconoSalida })
   .addTo(map)
   .bindPopup("🏠 Punto de Salida");
+
+// 👉 Tooltip que aparece al pasar el mouse
+markerSalida.bindTooltip("Trigo House", {
+  permanent: false, // aparece solo con hover
+  direction: 'top',
+  className: 'tooltip-cliente'
+});
 
 
 
@@ -85,12 +92,14 @@ L.marker([puntoSalida.lat, puntoSalida.lng], { icon: iconoSalida })
     iconSize: [24, 24],
     iconAnchor: [12, 24]
   });
-  markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map).bindPopup(`
-    <strong>${c.nombre}</strong><br>
-    🕒 ${c.horario}<br>
-    📦 ${bultos} bultos<br>
-    🗺️ Zona: ${c.zona || 'Sin asignar'}
-  `);
+markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map);
+
+// 👉 Agregamos el tooltip al marcador del cliente
+markers[c.nombre].bindTooltip(`${c.nombre.toLowerCase()}`, {
+  permanent: false,          // 🔁 Solo aparece con hover
+  direction: 'top',
+  className: 'tooltip-cliente'
+});
 }
 
 function removeMarker(c) {
@@ -254,12 +263,14 @@ checkbox.addEventListener('change', () => {
             iconSize: [24, 24],
             iconAnchor: [12, 24]
           });
-          markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map).bindPopup(`
-            <strong>${c.nombre}</strong><br>
-            🕒 ${c.horario}<br>
-            📦 ${bultos} bultos<br>
-            🗺️ Zona: ${c.zona || 'Sin asignar'}
-          `);
+markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map);
+
+// 👉 Agregamos el tooltip al marcador del cliente
+markers[c.nombre].bindTooltip(`${c.nombre.toLowerCase()}`, {
+  permanent: false,          // 🔁 Solo aparece con hover
+  direction: 'top',
+  className: 'tooltip-cliente'
+});
         }
 
         function removeMarker(c) {
