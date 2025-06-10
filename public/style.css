@@ -113,6 +113,8 @@
 .border-green { border-left-color: #28a745 !important; }
 .border-blue { border-left-color: #1E90FF !important; }
 .border-default { border-left-color: #dfebf8 !important; }
+.border-gray { border-left-color: #708090 !important; }
+
 
 .fila-cliente {
   display: flex;

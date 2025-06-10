@@ -1,433 +1,505 @@
 <div id="app">
     <div class="top-bar">
-      <h2>Hoja de Ruta - Trigo House Clientes</h2>
-      <br>
-      <h2>Agregar Cliente</h2>
-      <form id="form-cliente" style="margin-bottom: 20px;">
-        <input type="text" id="nombre" placeholder="Nombre" required>
-        <input type="text" id="direccion" placeholder="Dirección" required>
-        <input type="text" id="horario" placeholder="Horario (opcional)">
-        <button type="submit">➕ Agregar</button>
-      </form>
-      <hr>
-      <div id="resumen-bultos">
-        <strong>Totales por color:</strong>
-        <ul>
-          <li style="color:red">🔴 Camion 1: <span id="suma-rojo">0</span> Bultos - Cant. Máx. 400</li>
-          <li style="color:green">🟢 Camion 2: <span id="suma-verde">0</span> Bultos - Cant. Máx. 400</li>
-          <li style="color:#1E90FF">🔵 Camion 3: <span id="suma-azul">0</span> Bultos - Cant. Máx. 400</li>
-        </ul>
-      </div>
-    </div>
-    
-<div class="main-content">
-<div class="checkbox-list">
-  <!-- 🔝 Sección fija -->
-  <div class="filtros-fijos">
-    <div style="margin-bottom: 10px;">
-      <button class="filtro-color" data-color="">Todos</button>
-      <button class="filtro-color" data-color="border-red">🔴 Rojo</button>
-      <button class="filtro-color" data-color="border-green">🟢 Verde</button>
-      <button class="filtro-color" data-color="border-blue">🔵 Azul</button>
-    </div>
-    <button id="seleccionar-todos">✅ Seleccionar todos</button>
-    <br>
-    <button id="deseleccionar-todos">❌ Deseleccionar todos</button>
-    <br>
-    <input type="text" id="filtro-clientes" placeholder="Buscar cliente..." style="width: 100%; padding: 6px; margin: 10px 0;">
-  </div>
-
-  <!-- 🧾 Clientes scrollables -->
-  <div id="checkboxes" class="clientes-scroll"></div>
+        <h2>Agregar Cliente</h2>
+        <form id="form-cliente" style="margin-bottom: 20px;">
+            <input type="text" id="nombre" placeholder="Nombre" required>
+            <input type="text" id="direccion" placeholder="Dirección" required>
+            <input type="text" id="horario" placeholder="Horario (opcional)">
+            <input type="number" id="bultos" placeholder="Bultos" value="0" min="0">
+            <button type="submit">➕ Agregar</button>
+        </form>
+        <hr>
+<div id="resumen-bultos">
+    <strong>Totales por color:</strong>
+    <ul>
+        <li style="color:red">🔴 Camion 1: <span id="suma-rojo">0</span> Bultos - <span id="clientes-rojo">0</span> Clientes - Cant. Máx. 400</li>
+        <li style="color:green">🟢 Camion 2: <span id="suma-verde">0</span> Bultos - <span id="clientes-verde">0</span> Clientes - Cant. Máx. 400</li>
+        <li style="color:#1E90FF">🔵 Camion 3: <span id="suma-azul">0</span> Bultos - <span id="clientes-azul">0</span> Clientes - Cant. Máx. 400</li>
+    </ul>
+    <hr>
+    <strong>Total Global:</strong>
+    <ul>
+        <li>📦 <span id="total-bultos-global">0</span> Bultos</li>
+        <li>👤 <span id="total-clientes-global">0</span> Clientes</li>
+    </ul>
 </div>
+    </div>
 
-  <!-- 🗺️ Mapa -->
-  <div id="map"></div>
+    <div class="main-content">
+        <div class="checkbox-list" style="position: relative;">
+            <div class="filtros-fijos">
+                <div style="margin-bottom: 10px;">
+                    <button class="filtro-color" data-color="">Todos</button>
+                    <button class="filtro-color" data-color="border-red">🔴 Rojo</button>
+                    <button class="filtro-color" data-color="border-green">🟢 Verde</button>
+                    <button class="filtro-color" data-color="border-blue">🔵 Azul</button>
+                    <button class="filtro-color" data-color="border-gray" >Por seleccionar</button>
+                </div>
+                <button id="seleccionar-todos">✅ Seleccionar todos</button>
+                <br>
+                <button id="deseleccionar-todos">❌ Deseleccionar todos</button>
+                <br>
+                <input type="text" id="filtro-clientes" placeholder="Buscar cliente..." style="width: 100%; padding: 6px; margin: 10px 0;">
+            </div>
+            <input type="file" id="excelFile" accept=".xlsx, .xls" />
+            <br>
+            <div id="checkboxes" class="clientes-scroll"></div>
+
+            <button id="scrollTopBtn" style="display: none; position: absolute; bottom: 20px; right: 10px; z-index: 100; font-size: 18px; border: none; outline: none; background-color: rgba(0, 0, 0, 0.7); color: white; cursor: pointer; padding: 10px 15px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">⬆️</button>
+        </div>
+
+        <div id="map"></div>
+    </div>
 </div>
-
-  </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const map = L.map('map').setView([-34.53423856357239, -58.54456614470144], 11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    const map = L.map('map').setView([-34.53423856357239, -58.54456614470144], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    // Punto fijo de salida (ej: panadería)
+    const puntoSalida = {
+        lat: -34.53423856357239,
+        lng: -58.54456614470144
+    };
 
-  // Punto fijo de salida (ej: panadería)
-const puntoSalida = {
-  lat: -34.53423856357239,
-  lng: -58.54456614470144
-};
-
-const iconoSalida = L.divIcon({
-  className: 'custom-marker',
-  html: `<i class="fa-solid fa-industry" style="color: orange; font-size: 20px;"></i>`,
-  iconSize: [20, 20],
-  iconAnchor: [10, 20]
-});
-
-const markerSalida = L.marker([puntoSalida.lat, puntoSalida.lng], { icon: iconoSalida })
-  .addTo(map)
-  .bindPopup("🏠 Punto de Salida");
-
-// 👉 Tooltip que aparece al pasar el mouse
-markerSalida.bindTooltip("Trigo House", {
-  permanent: false, // aparece solo con hover
-  direction: 'top',
-  className: 'tooltip-cliente'
-});
-
-
-
-
-
-
-  let markers = {};
-
-  function updateMarker(c, color, bultos) {
-  if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
-  const icon = L.divIcon({
-    className: 'custom-marker',
-    html: `<i class="fa fa-map-marker" style="color:${color}; font-size:24px;"></i>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 24]
-  });
-markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map);
-
-// 👉 Agregamos el tooltip al marcador del cliente
-const direccionCorta = c.direccion?.split(',')[0] || '';
-
-markers[c.nombre].bindTooltip(`
-  <div style="font-size: 13px; line-height: 1.4; max-width: 220px;">
-    <strong style="text-transform: uppercase;">${c.nombre}</strong><br>
-    <span style="color: #333;">📍 ${direccionCorta}</span>
-  </div>
-`, {
-  permanent: false,
-  direction: 'top',
-  className: 'tooltip-cliente'
-});
-
-
-
-}
-
-function removeMarker(c) {
-  if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
-}
-
-
-  const drawnItems = new L.FeatureGroup();
-  map.addLayer(drawnItems);
-
-  const drawControl = new L.Control.Draw({
-    draw: { polygon: true, polyline: false, rectangle: true, circle: false, marker: false, circlemarker: false },
-    edit: { featureGroup: drawnItems }
-  });
-  map.addControl(drawControl);
-
-  map.on(L.Draw.Event.CREATED, function (event) {
-    const layer = event.layer;
-    drawnItems.addLayer(layer);
-
-    const nombreZona = prompt('Nombre de la zona:');
-    const color = prompt('Color (ej: blue, red, green):');
-    const original = layer.getLatLngs();
-    const coordenadas = original.map(anillo => anillo.map(p => [p.lat, p.lng]));
-
-    if (nombreZona && coordenadas.length) {
-      fetch('/api/zonas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: nombreZona, coordenadas, color })
-      }).then(res => {
-        if (res.ok) {
-          alert(`✅ Zona "${nombreZona}" con color "${color}" guardada`);
-          layer.bindPopup(`Zona: ${nombreZona}`).openPopup();
-        } else {
-          alert('❌ Error al guardar la zona');
-        }
-      });
-    }
-  });
-
-  fetch('/api/zonas')
-    .then(res => res.json())
-    .then(zonas => {
-      zonas.forEach(zona => {
-        const coords = zona.coordenadas.map(anillo => anillo.map(p => [p[0], p[1]]));
-        const popupContent = document.createElement('div');
-        popupContent.innerHTML = `
-          <strong>Zona: ${zona.nombre}</strong><br>
-          <button class="btn-eliminar-zona" data-id="${zona._id}">🗑️ Eliminar</button>
-        `;
-        const poligono = L.polygon(coords, { color: zona.color, fillColor: zona.color, fillOpacity: 0.2 })
-          .addTo(map).bindPopup(popupContent);
-        popupContent.querySelector('.btn-eliminar-zona').addEventListener('click', () => {
-          if (confirm('¿Eliminar esta zona?')) {
-            fetch(`/api/zonas/${zona._id}`, { method: 'DELETE' }).then(res => {
-              if (res.ok) {
-                alert('✅ Zona eliminada');
-                location.reload();
-              } else alert('❌ Error al eliminar zona');
-            });
-          }
-        });
-      });
+    const iconoSalida = L.divIcon({
+        className: 'custom-marker',
+        html: `<i class="fa-solid fa-industry" style="color: orange; font-size: 20px;"></i>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 20]
     });
-document.getElementById('form-cliente').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const nombre = document.getElementById('nombre').value.trim();
-  const direccion = document.getElementById('direccion').value.trim();
-  const horario = document.getElementById('horario').value.trim();
-  const bultos = parseInt(document.getElementById('bultos')?.value.trim()) || 0;
 
-  if (!nombre || !direccion || isNaN(bultos)) return alert('Completá todos los campos obligatorios.');
+    const markerSalida = L.marker([puntoSalida.lat, puntoSalida.lng], { icon: iconoSalida })
+        .addTo(map)
+        .bindPopup("🏠 Punto de Salida");
 
-  try {
-    const res = await fetch('/nuevo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ nombre, direccion, horario, bultos })
+    // 👉 Tooltip que aparece al pasar el mouse
+    markerSalida.bindTooltip("Trigo House", {
+        permanent: false, // aparece solo con hover
+        direction: 'top',
+        className: 'tooltip-cliente'
     });
-    res.ok ? location.reload() : alert('❌ Error al agregar cliente');
-  } catch (err) {
-    alert('❌ Error al agregar cliente');
-  }
-});
 
+    let markers = {};
 
-  fetch('/api/clientes')
-    .then(res => res.json())
-    .then(clientes => {
-      window.clientesData = clientes; // ✅ esta línea es necesaria
-      const contenedor = document.getElementById('checkboxes');
-      clientes.forEach(cliente => {
-        const div = document.createElement('div');
-        div.classList.add('cliente-info', 'fila-cliente', 'border-default');
-
-        div.innerHTML = `
-          <input type="checkbox" class="cliente-checkbox" id="${cliente.nombre}">
-          <div class="info-izq">
-            <strong>${cliente.nombre}</strong>
-            <div>🕒 ${cliente.horario || 'Sin horario'}</div>
-            <div>📦 <input type="number" value="${cliente.bultos || 0}" min="0" style="width:50px;"> bultos</div>
-            <input type="hidden" id="color-${cliente.nombre}" value="#1E90FF">
-          </div>
-          <div class="info-der">
-            🎨
-            <div class="color-options">
-              <button class="color-btn" data-color="#DC143C" style="background:#DC143C;"></button>
-              <button class="color-btn" data-color="green" style="background:green;"></button>
-              <button class="color-btn" data-color="#1E90FF" style="background:#1E90FF;"></button>
-            </div>
-          </div>
-        `;
-
-        contenedor.appendChild(div);
-
-        const checkbox = div.querySelector('.cliente-checkbox');
-        const colorInput = div.querySelector('input[type="hidden"]');
-        const bultosInput = div.querySelector('input[type="number"]');
-        const colorButtons = div.querySelectorAll('.color-btn');
-
-        const applyColor = (color) => {
-          div.classList.remove('border-red', 'border-green', 'border-blue', 'border-default');
-          if (color === '#DC143C') div.classList.add('border-red');
-          else if (color === 'green') div.classList.add('border-green');
-          else div.classList.add('border-blue');
-        };
-
-        colorButtons.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const color = btn.dataset.color;
-            colorInput.value = color;
-            applyColor(color);
-            if (checkbox.checked) updateMarker(cliente, color, bultosInput.value);
-            actualizarTotales();
-          });
-        });
-
-checkbox.addEventListener('change', () => {
-  const color = colorInput.value;
-  if (checkbox.checked) {
-    applyColor(color);
-    updateMarker(cliente, color, bultosInput.value);
-  } else {
-    div.classList.remove('border-red', 'border-green', 'border-blue');
-    div.classList.add('border-default'); // vuelve a gris
-    removeMarker(cliente);
-  }
-  actualizarTotales();
-});
-        bultosInput.addEventListener('input', () => {
-          if (checkbox.checked && markers[cliente.nombre]) updateMarker(cliente, colorInput.value, bultosInput.value);
-          actualizarTotales();
-        });
-
-        function updateMarker(c, color, bultos) {
-          if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
-          const icon = L.divIcon({
+    function updateMarker(c, color, bultos) {
+        if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
+        const icon = L.divIcon({
             className: 'custom-marker',
             html: `<i class="fa fa-map-marker" style="color:${color}; font-size:24px;"></i>`,
             iconSize: [24, 24],
             iconAnchor: [12, 24]
-          });
-markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map);
+        });
+        markers[c.nombre] = L.marker([c.lat, c.lng], { icon }).addTo(map);
 
-// 👉 Agregamos el tooltip al marcador del cliente
-const direccionCorta = c.direccion?.split(',')[0] || '';
+        // 👉 Agregamos el tooltip al marcador del cliente
+        const direccionCorta = c.direccion?.split(',')[0] || '';
 
-markers[c.nombre].bindTooltip(`
-  <div style="font-size: 13px; line-height: 1.4; max-width: 220px;">
-    <strong style="text-transform: uppercase;">${c.nombre}</strong><br>
-    <span style="color: #333;">📍 ${direccionCorta}</span>
-  </div>
-`, {
-  permanent: false,
-  direction: 'top',
-  className: 'tooltip-cliente'
+        markers[c.nombre].bindTooltip(`
+            <div style="font-size: 13px; line-height: 1.4; max-width: 220px;">
+                <strong style="text-transform: uppercase;">${c.nombre}</strong><br>
+                <span style="color: #333;">📍 ${direccionCorta}</span>
+            </div>
+        `, {
+            permanent: false,
+            direction: 'top',
+            className: 'tooltip-cliente'
+        });
+    }
+
+    function removeMarker(c) {
+        if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
+    }
+
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    const drawControl = new L.Control.Draw({
+        draw: { polygon: true, polyline: false, rectangle: true, circle: false, marker: false, circlemarker: false },
+        edit: { featureGroup: drawnItems }
+    });
+    map.addControl(drawControl);
+
+    map.on(L.Draw.Event.CREATED, function (event) {
+        const layer = event.layer;
+        drawnItems.addLayer(layer);
+
+        const nombreZona = prompt('Nombre de la zona:');
+        const color = prompt('Color (ej: blue, red, green):');
+        const original = layer.getLatLngs();
+        const coordenadas = original.map(anillo => anillo.map(p => [p.lat, p.lng]));
+
+        if (nombreZona && coordenadas.length) {
+            fetch('/api/zonas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre: nombreZona, coordenadas, color })
+            }).then(res => {
+                if (res.ok) {
+                    alert(`✅ Zona "${nombreZona}" con color "${color}" guardada`);
+                    layer.bindPopup(`Zona: ${nombreZona}`).openPopup();
+                } else {
+                    alert('❌ Error al guardar la zona');
+                }
+            });
+        }
+    });
+
+    fetch('/api/zonas')
+        .then(res => res.json())
+        .then(zonas => {
+            zonas.forEach(zona => {
+                const coords = zona.coordenadas.map(anillo => anillo.map(p => [p[0], p[1]]));
+                const popupContent = document.createElement('div');
+                popupContent.innerHTML = `
+                    <strong>Zona: ${zona.nombre}</strong><br>
+                    <button class="btn-eliminar-zona" data-id="${zona._id}">🗑️ Eliminar</button>
+                `;
+                const poligono = L.polygon(coords, { color: zona.color, fillColor: zona.color, fillOpacity: 0.2 })
+                    .addTo(map).bindPopup(popupContent);
+                popupContent.querySelector('.btn-eliminar-zona').addEventListener('click', () => {
+                    if (confirm('¿Eliminar esta zona?')) {
+                        fetch(`/api/zonas/${zona._id}`, { method: 'DELETE' }).then(res => {
+                            if (res.ok) {
+                                alert('✅ Zona eliminada');
+                                location.reload();
+                            } else alert('❌ Error al eliminar zona');
+                        });
+                    }
+                });
+            });
+        });
+
+    document.getElementById('form-cliente').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nombre = document.getElementById('nombre').value.trim();
+        const direccion = document.getElementById('direccion').value.trim();
+        const horario = document.getElementById('horario').value.trim();
+        const bultos = parseInt(document.getElementById('bultos')?.value.trim()) || 0; // Asegúrate de que el input 'bultos' exista si lo usas aquí
+
+        if (!nombre || !direccion || isNaN(bultos)) return alert('Completá todos los campos obligatorios.');
+
+        try {
+            const res = await fetch('/nuevo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ nombre, direccion, horario, bultos })
+            });
+            res.ok ? location.reload() : alert('❌ Error al agregar cliente');
+        } catch (err) {
+            alert('❌ Error al agregar cliente');
+        }
+    });
+
+  fetch('/api/clientes')
+        .then(res => res.json())
+        .then(clientes => {
+            window.clientesData = clientes;
+            const contenedor = document.getElementById('checkboxes');
+            clientes.forEach(cliente => {
+                const div = document.createElement('div');
+                div.classList.add('cliente-info', 'fila-cliente', 'border-default');
+
+                div.innerHTML = `
+                    <input type="checkbox" class="cliente-checkbox" id="${cliente.nombre}">
+                    <div class="info-izq">
+                        <strong>${cliente.nombre}</strong>
+                        <div>🕒 ${cliente.horario || 'Sin horario'}</div>
+                        <div>📦 <input type="number" value="${cliente.bultos || 0}" min="0" style="width:50px;"> bultos</div>
+                        <input type="hidden" id="color-${cliente.nombre}" value="#708090">
+                    </div>
+                    <div class="info-der">
+                        🎨
+                        <div class="color-options">
+                            <button class="color-btn" data-color="#DC143C" style="background:#DC143C;"></button>
+                            <button class="color-btn" data-color="green" style="background:green;"></button>
+                            <button class="color-btn" data-color="#1E90FF" style="background:#1E90FF;"></button>
+                            <button class="color-btn" data-color="#708090" style="background:#708090;"></button>
+                        </div>
+                    </div>
+                `;
+
+                contenedor.appendChild(div);
+
+                const checkbox = div.querySelector('.cliente-checkbox');
+                const colorInput = div.querySelector('input[type="hidden"]');
+                const bultosInput = div.querySelector('input[type="number"]');
+                const colorButtons = div.querySelectorAll('.color-btn');
+
+                // Ahora, llama a applyColor pasándole `div` como primer argumento
+                colorButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const color = btn.dataset.color;
+                        colorInput.value = color;
+                        applyColor(div, color); // <--- CAMBIO AQUÍ
+                        if (checkbox.checked) updateMarker(cliente, color, bultosInput.value);
+                        actualizarTotales();
+                    });
+                });
+checkbox.addEventListener('change', () => {
+    const color = colorInput.value;
+    if (checkbox.checked) {
+        // Si está seleccionado, aplica el color que tenga asignado
+        applyColor(div, color); // Esto usará la lógica actualizada de applyColor
+        updateMarker(cliente, color, bultosInput.value);
+    } else {
+        // Si se deselecciona, quita los colores específicos y vuelve a 'border-default'
+        div.classList.remove('border-red', 'border-green', 'border-blue', 'border-gray'); // ✅ Quita también border-gray
+        div.classList.add('border-default'); // Vuelve al borde por defecto (gris claro)
+        removeMarker(cliente);
+    }
+    actualizarTotales();
 });
 
+                bultosInput.addEventListener('input', () => {
+                    if (checkbox.checked && markers[cliente.nombre]) updateMarker(cliente, colorInput.value, bultosInput.value);
+                    actualizarTotales();
+                });
+
+                // Hover directo sin click
+                div.addEventListener('mouseover', () => markers[cliente.nombre]?._icon?.classList.add('hovered'));
+                div.addEventListener('mouseleave', () => markers[cliente.nombre]?._icon?.classList.remove('hovered'));
+
+                setTimeout(() => {
+                    const rect = div.getBoundingClientRect();
+                    const x = window.event?.clientX;
+                    const y = window.event?.clientY;
+                    if (x && y && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom)
+                        markers[cliente.nombre]?._icon?.classList.add('hovered');
+                }, 100);
+            });
+
+            new Sortable(contenedor, { animation: 150, ghostClass: 'drag-ghost' });
+        });
 
 
-        }
 
-        function removeMarker(c) {
-          if (markers[c.nombre]) map.removeLayer(markers[c.nombre]);
-        }
+// Define applyColor de forma que reciba el elemento `div` como argumento
+function applyColor(elementDiv, color) {
+    elementDiv.classList.remove('border-red', 'border-green', 'border-blue', 'border-gray', 'border-default');
 
-        // Hover directo sin click
-        div.addEventListener('mouseover', () => markers[cliente.nombre]?._icon?.classList.add('hovered'));
-        div.addEventListener('mouseleave', () => markers[cliente.nombre]?._icon?.classList.remove('hovered'));
+    if (color === '#DC143C') {
+        elementDiv.classList.add('border-red');
+    } else if (color === 'green') {
+        elementDiv.classList.add('border-green');
+    } else if (color === '#1E90FF') {
+        elementDiv.classList.add('border-blue');
+    } else if (color === '#708090') {
+        elementDiv.classList.add('border-gray');
+    } else {
+        elementDiv.classList.add('border-default');
+    }
+}
 
-        setTimeout(() => {
-          const rect = div.getBoundingClientRect();
-          const x = window.event?.clientX;
-          const y = window.event?.clientY;
-          if (x && y && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom)
-            markers[cliente.nombre]?._icon?.classList.add('hovered');
-        }, 100);
-      });
+function actualizarTotales() {
+    let rojoBultos = 0, verdeBultos = 0, azulBultos = 0;
+    let rojoClientes = 0, verdeClientes = 0, azulClientes = 0;
+    let totalBultosGlobal = 0;
+    let totalClientesGlobal = 0;
 
-      new Sortable(contenedor, { animation: 150, ghostClass: 'drag-ghost' });
-    });
-
-  function actualizarTotales() {
-    let rojo = 0, verde = 0, azul = 0;
     document.querySelectorAll('.cliente-info').forEach(div => {
-      const checkbox = div.querySelector('.cliente-checkbox');
+        const checkbox = div.querySelector('.cliente-checkbox');
 
-      const color = div.querySelector('input[type="hidden"]').value;
-      const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
-      if (checkbox.checked) {
-        if (color === '#DC143C') rojo += bultos;
-        else if (color === 'green') verde += bultos;
-        else azul += bultos;
-      }
+        if (checkbox.checked) { // Solo si el cliente está seleccionado
+            const color = div.querySelector('input[type="hidden"]').value;
+            const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
+
+            if (color === '#DC143C') { // Rojo
+                rojoBultos += bultos;
+                rojoClientes++;
+            } else if (color === 'green') { // Verde
+                verdeBultos += bultos;
+                verdeClientes++;
+            } else if (color === '#1E90FF') { // Azul
+                azulBultos += bultos;
+                azulClientes++;
+            }
+            totalBultosGlobal += bultos;
+            totalClientesGlobal++;
+        }
     });
-    document.getElementById('suma-rojo').textContent = rojo;
-    document.getElementById('suma-verde').textContent = verde;
-    document.getElementById('suma-azul').textContent = azul;
-  }
+
+    // Actualizar los SPANs por color
+    document.getElementById('suma-rojo').textContent = rojoBultos;
+    document.getElementById('clientes-rojo').textContent = rojoClientes;
+
+    document.getElementById('suma-verde').textContent = verdeBultos;
+    document.getElementById('clientes-verde').textContent = verdeClientes;
+
+    document.getElementById('suma-azul').textContent = azulBultos;
+    document.getElementById('clientes-azul').textContent = azulClientes;
+
+    // Actualizar los SPANs globales
+    document.getElementById('total-bultos-global').textContent = totalBultosGlobal;
+    document.getElementById('total-clientes-global').textContent = totalClientesGlobal;
+}
+
+
+
+
+
 
     const filtroInput = document.getElementById("filtro-clientes");
     const listaClientes = document.getElementById("checkboxes");
 
     filtroInput.addEventListener("input", () => {
-
-      const filtro = filtroInput.value.toLowerCase();
-
-      const clientes = listaClientes.querySelectorAll(".cliente-info");
-      clientes.forEach(cliente => {
-        const texto = cliente.textContent.toLowerCase();
-        cliente.style.display = texto.includes(filtro) ? "flex" : "none";
+        const filtro = filtroInput.value.toLowerCase();
+        const clientes = listaClientes.querySelectorAll(".cliente-info");
+        clientes.forEach(cliente => {
+            const texto = cliente.textContent.toLowerCase();
+            cliente.style.display = texto.includes(filtro) ? "flex" : "none";
+        });
     });
-  
-  });
 
-  
-// 🎨 Filtro por color (botones)
-document.querySelectorAll('.filtro-color').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const colorClase = btn.dataset.color;
-    document.querySelectorAll('.cliente-info').forEach(cliente => {
-      if (!colorClase || cliente.classList.contains(colorClase)) {
-        cliente.style.display = "flex";
-      } else {
-        cliente.style.display = "none";
-      }
+    // 🎨 Filtro por color (botones)
+    document.querySelectorAll('.filtro-color').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const colorClase = btn.dataset.color;
+            document.querySelectorAll('.cliente-info').forEach(cliente => {
+                if (!colorClase || cliente.classList.contains(colorClase)) {
+                    cliente.style.display = "flex";
+                } else {
+                    cliente.style.display = "none";
+                }
+            });
+            // Limpiar el input para evitar doble filtro
+            filtroInput.value = "";
+        });
     });
-    // Limpiar el input para evitar doble filtro
-    filtroInput.value = "";
-  });
-});
 
 document.getElementById('seleccionar-todos').addEventListener('click', () => {
-  document.querySelectorAll('.cliente-info').forEach(div => {
-    const checkbox = div.querySelector('.cliente-checkbox');
+    document.querySelectorAll('.cliente-info').forEach(div => {
+        const checkbox = div.querySelector('.cliente-checkbox');
 
-    if (!checkbox.checked) checkbox.checked = true;
+        if (!checkbox.checked) checkbox.checked = true;
 
-    const color = div.querySelector('input[type="hidden"]').value;
-    const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
-    const nombre = checkbox.id;
+        const color = div.querySelector('input[type="hidden"]').value;
+        const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
+        const nombre = checkbox.id;
 
-    // Aplicar color visual
-    div.classList.remove('border-default', 'border-red', 'border-green', 'border-blue');
-    if (color === '#DC143C') div.classList.add('border-red');
-    else if (color === 'green') div.classList.add('border-green');
-    else div.classList.add('border-blue');
+        // Aplicar color visual usando la función applyColor (simplificado)
+        applyColor(div, color); // ✅ Usar applyColor aquí para consistencia
 
-    // Agregar marcador
-    const cliente = { nombre, lat: 0, lng: 0, horario: '', zona: '' }; // dummy temporal
-    const realCliente = window.clientesData?.find(c => c.nombre === nombre); // usar si querés data real
-    if (realCliente) {
-      cliente.lat = realCliente.lat;
-      cliente.lng = realCliente.lng;
-      cliente.horario = realCliente.horario;
-      cliente.zona = realCliente.zona;
-      cliente.direccion = realCliente.direccion; // ✅ Esta línea es clave
+        // Agregar marcador (resto de tu lógica de marcador)
+        const cliente = { nombre, lat: 0, lng: 0, horario: '', zona: '' };
+        const realCliente = window.clientesData?.find(c => c.nombre === nombre);
+        if (realCliente) {
+            cliente.lat = realCliente.lat;
+            cliente.lng = realCliente.lng;
+            cliente.horario = realCliente.horario;
+            cliente.zona = realCliente.zona;
+            cliente.direccion = realCliente.direccion;
+        }
+        updateMarker(cliente, color, bultos);
+    });
+    actualizarTotales();
+});
+
+    document.getElementById('deseleccionar-todos').addEventListener('click', () => {
+        document.querySelectorAll('.cliente-info').forEach(div => {
+            const checkbox = div.querySelector('.cliente-checkbox');
+
+            checkbox.checked = false;
+
+            div.classList.remove('border-red', 'border-green', 'border-blue','border-gray');
+            div.classList.add('border-default');
+
+            const nombre = checkbox.id;
+            const cliente = window.clientesData?.find(c => c.nombre === nombre);
+            if (cliente) removeMarker(cliente);
+        });
+        actualizarTotales();
+    });
+
+    document.getElementById('excelFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Ensure the XLSX library is loaded
+        if (typeof XLSX === 'undefined') {
+            console.error('XLSX library not loaded. Please include it in your HTML.');
+            return;
+        }
+
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const hoja = workbook.Sheets[workbook.SheetNames[0]];
+        const filasRaw = XLSX.utils.sheet_to_json(hoja, { defval: "" });
+
+        console.log("Raw Excel Data:", filasRaw); // ADD THIS LINE FOR DEBUGGING
+
+        const porCliente = filasRaw.reduce((acc, f) => {
+            const nombre = (f["Cliente"] || "").trim(); // Assuming "Cliente" is the column header for client names
+            // Prioritize "Cant. Pedida", then "Cant. a Despachar", default to 0
+            const bultos = parseInt(f["Cant. Pedida"] ?? f["Cant. a Despachar"] ?? 0);
+
+            if (!nombre) return acc; // Skip rows without a client name
+            acc[nombre] = (acc[nombre] || 0) + (isNaN(bultos) ? 0 : bultos);
+            return acc;
+        }, {});
+
+        Object.entries(porCliente).forEach(([nombre, totalBultos]) => {
+            // Correctly find the client div by targeting the checkbox's ID
+            const checkboxElement = document.getElementById(nombre);
+            if (!checkboxElement) {
+                console.warn(`Cliente "${nombre}" del Excel no encontrado en la lista de clientes.`);
+                return;
+            }
+
+            const divCli = checkboxElement.closest('.cliente-info');
+            if (!divCli) return; // Should not happen if checkboxElement is found, but good for safety
+
+            const check = divCli.querySelector('.cliente-checkbox');
+            const bultosInput = divCli.querySelector('input[type="number"]');
+            const colorHidden = divCli.querySelector('input[type="hidden"]');
+            const color = colorHidden.value;
+
+            // Mark checkbox, fill quantity, and update map
+            check.checked = true;
+            bultosInput.value = totalBultos;
+
+
+// Apply the color visually
+divCli.classList.remove('border-red', 'border-green', 'border-blue', 'border-default');
+if (color === '#DC143C') divCli.classList.add('border-red');
+else if (color === 'green') divCli.classList.add('border-green');
+else divCli.classList.add('border-blue'); // Esto es lo que estaba mal para el gris.
+
+// Find the full client data from window.clientesData for marker update
+
+
+            // Find the full client data from window.clientesData for marker update
+            const clienteData = window.clientesData?.find(c => c.nombre === nombre);
+            if (clienteData) {
+                // updateMarker expects an object with lat, lng, and direccion
+                updateMarker(clienteData, color, totalBultos);
+            } else {
+                console.warn(`Could not find full data for client "${nombre}" in window.clientesData.`);
+            }
+        });
+
+        // Update totals after all clients are processed
+        actualizarTotales();
+    });
+
+    // ✅ Aquí se movió el JavaScript para el botón de scroll DENTRO del DOMContentLoaded
+    const checkboxesDiv = document.getElementById("checkboxes"); // Referencia al div que tiene scroll
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+    // Mostrar/ocultar el botón basado en el scroll del DIV, no de la ventana
+    if (checkboxesDiv && scrollTopBtn) { // Asegurarse de que los elementos existan
+        checkboxesDiv.addEventListener("scroll", () => {
+            // Muestra el botón si el scroll del div es mayor a, por ejemplo, 100px
+            scrollTopBtn.style.display = checkboxesDiv.scrollTop > 100 ? "block" : "none";
+        });
+
+        // Desplazarse al inicio del DIV cuando se hace clic en el botón
+        scrollTopBtn.addEventListener("click", () => {
+            checkboxesDiv.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    } else {
+        console.warn("Could not find 'checkboxes' div or 'scrollTopBtn'. Scroll to top functionality may not work.");
     }
-    updateMarker(cliente, color, bultos);
-  });
-
-  actualizarTotales();
 });
-
-document.getElementById('deseleccionar-todos').addEventListener('click', () => {
-  document.querySelectorAll('.cliente-info').forEach(div => {
-    const checkbox = div.querySelector('.cliente-checkbox');
-
-    checkbox.checked = false;
-
-    div.classList.remove('border-red', 'border-green', 'border-blue');
-    div.classList.add('border-default');
-
-    const nombre = checkbox.id;
-    const cliente = window.clientesData?.find(c => c.nombre === nombre);
-    if (cliente) removeMarker(cliente);
-  });
-
-  actualizarTotales();
-});
-
-
-
-});
-
-
-// Botón de scroll hacia arriba
-const scrollTopBtn = document.getElementById("scrollTopBtn");
-
-window.addEventListener("scroll", () => {
-  scrollTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
-});
-
-scrollTopBtn.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-
-
 </script>
