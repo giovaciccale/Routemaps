@@ -44,8 +44,9 @@
             <div class="checkbox-list">
                 <input type="file" id="excelFile" accept=".xlsx, .xls" />
                 <div id="checkboxes" class="clientes-scroll"></div>
-                 <button id="scrollTopBtn">⬆️</button>
+           
             </div>
+                  <button id="scrollTopBtn">⬆️</button>
 
             <div id="map"></div>
         </div>
@@ -509,7 +510,7 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
         actualizarTotales();
     });
 
-    const checkboxesDiv = document.getElementById("checkboxes");
+    const checkboxesDiv = document.querySelector(".checkbox-list");
     const scrollTopBtn = document.getElementById("scrollTopBtn");
 
     if (checkboxesDiv && scrollTopBtn) {

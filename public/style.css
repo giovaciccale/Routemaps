@@ -324,29 +324,6 @@ hr {
 }
 
 
-/* Scroll to Top Button */
-#scrollTopBtn {
-    display: none; /* Oculto por defecto, JS lo muestra */
-    position: absolute; /* Relativo al .checkbox-list */
-    bottom: 20px;
-    right: 10px;
-    z-index: 100;
-    font-size: 18px;
-    border: none;
-    outline: none;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    cursor: pointer;
-    padding: 10px 15px;
-    border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: background-color 0.3s ease;
-}
-
-#scrollTopBtn:hover {
-    background-color: rgba(0, 0, 0, 0.9);
-}
-
 
 /* Responsive design */
 @media (max-width: 992px) {
@@ -547,26 +524,26 @@ hr {
     padding: 10px;
 }
 
-/* Scroll to Top Button (AJUSTADO PARA ESTAR DENTRO DE .checkbox-list) */
+
+
 #scrollTopBtn {
-    display: none; /* Oculto por defecto, JS lo muestra */
-    position: absolute; /* ✅ Vuelve a ser absolute */
+    display: none; /* Mostrar solo al hacer scroll */
+    position: fixed; /* ✅ clave para fijarlo en toda la ventana */
     bottom: 20px;
-    right: 10px; /* Ajusta la posición según prefieras */
-    z-index: 100; /* Asegura que esté por encima de otros elementos dentro de la lista */
-    font-size: 18px;
+    right: 20px;
+    z-index: 9999;
+    font-size: 20px;
     border: none;
     outline: none;
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
     cursor: pointer;
-    padding: 10px 15px;
+    padding: 12px 16px;
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     transition: background-color 0.3s ease;
 }
 
 #scrollTopBtn:hover {
     background-color: rgba(0, 0, 0, 0.9);
 }
-
