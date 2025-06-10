@@ -238,7 +238,9 @@ hr {
 .cliente-card.border-red { border-left: 5px solid red; }
 .cliente-card.border-green { border-left: 5px solid green; }
 .cliente-card.border-blue { border-left: 5px solid #1E90FF; }
-.cliente-card.border-gray { border-left: 5px solid gray; }
+.cliente-card.border-gray {
+    border-left: 5px solid rgba(128, 128, 128, 0.4);
+}
 
 .cliente-card label {
     display: flex;
@@ -308,7 +310,7 @@ hr {
 .cliente-actions .color-selector button.red { background-color: red; }
 .cliente-actions .color-selector button.green { background-color: green; }
 .cliente-actions .color-selector button.blue { background-color: #1E90FF; }
-.cliente-actions .color-selector button.gray { background-color: gray; }
+.cliente-actions .color-selector button.gray {  background-color: rgba(128, 128, 128, 0.4); /* gris con transparencia */}
 
 .cliente-actions .color-selector button.selected {
     border-color: #007bff; /* Color que resalta la selección */
