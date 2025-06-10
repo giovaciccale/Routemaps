@@ -1,4 +1,4 @@
-   <div id="app">
+  <div id="app">
         <div class="top-bar">
             <h2>Agregar Cliente</h2>
             <form id="form-cliente">
@@ -44,12 +44,15 @@
             <div class="checkbox-list">
                 <input type="file" id="excelFile" accept=".xlsx, .xls" />
                 <div id="checkboxes" class="clientes-scroll"></div>
-                <button id="scrollTopBtn">⬆️</button>
+                 <button id="scrollTopBtn">⬆️</button>
             </div>
 
             <div id="map"></div>
         </div>
     </div>
+
+    
+
 
 <script>
 // ÚNICA DEFINICIÓN DE applyColor - FUERA DE DOMContentLoaded
@@ -408,19 +411,24 @@ if (!checkbox.checked) {
         });
         actualizarTotales();
     });
+document.getElementById('deseleccionar-todos').addEventListener('click', () => {
+    document.querySelectorAll('.cliente-info').forEach(div => {
+        const checkbox = div.querySelector('.cliente-checkbox');
+        const colorInput = div.querySelector('input[type="hidden"]');
+        checkbox.checked = false;
 
-    document.getElementById('deseleccionar-todos').addEventListener('click', () => {
-        document.querySelectorAll('.cliente-info').forEach(div => {
-            const checkbox = div.querySelector('.cliente-checkbox');
-            checkbox.checked = false;
+        // Volver al color default visualmente y en el input hidden
+        colorInput.value = '';
+        applyColor(div, '');
 
-            // Al deseleccionar todos, solo queremos quitar los marcadores, no cambiar el color visual del div
-            const nombre = checkbox.id;
-            const cliente = window.clientesData?.find(c => c.nombre === nombre);
-            if (cliente) removeMarker(cliente);
-        });
-        actualizarTotales();
+        // Quitar marcador del mapa
+        const nombre = checkbox.id;
+        const cliente = window.clientesData?.find(c => c.nombre === nombre);
+        if (cliente) removeMarker(cliente);
     });
+    actualizarTotales();
+});
+
 
     document.getElementById('excelFile').addEventListener('change', async (e) => {
         const file = e.target.files[0];
