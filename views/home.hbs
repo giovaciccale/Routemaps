@@ -1,58 +1,74 @@
-<div id="app">
-    <div class="top-bar">
-        <h2>Agregar Cliente</h2>
-        <form id="form-cliente" style="margin-bottom: 20px;">
-            <input type="text" id="nombre" placeholder="Nombre" required>
-            <input type="text" id="direccion" placeholder="Dirección" required>
-            <input type="text" id="horario" placeholder="Horario (opcional)">
-            <input type="number" id="bultos" placeholder="Bultos" value="0" min="0">
-            <button type="submit">➕ Agregar</button>
-        </form>
-        <hr>
-<div id="resumen-bultos">
-    <strong>Totales por color:</strong>
-    <ul>
-        <li style="color:red">🔴 Camion 1: <span id="suma-rojo">0</span> Bultos - <span id="clientes-rojo">0</span> Clientes - Cant. Máx. 400</li>
-        <li style="color:green">🟢 Camion 2: <span id="suma-verde">0</span> Bultos - <span id="clientes-verde">0</span> Clientes - Cant. Máx. 400</li>
-        <li style="color:#1E90FF">🔵 Camion 3: <span id="suma-azul">0</span> Bultos - <span id="clientes-azul">0</span> Clientes - Cant. Máx. 400</li>
-    </ul>
-    <hr>
-    <strong>Total Global:</strong>
-    <ul>
-        <li>📦 <span id="total-bultos-global">0</span> Bultos</li>
-        <li>👤 <span id="total-clientes-global">0</span> Clientes</li>
-    </ul>
-</div>
-    </div>
-
-    <div class="main-content">
-        <div class="checkbox-list" style="position: relative;">
-            <div class="filtros-fijos">
-                <div style="margin-bottom: 10px;">
-                    <button class="filtro-color" data-color="">Todos</button>
-                    <button class="filtro-color" data-color="border-red">🔴 Rojo</button>
-                    <button class="filtro-color" data-color="border-green">🟢 Verde</button>
-                    <button class="filtro-color" data-color="border-blue">🔵 Azul</button>
-                    <button class="filtro-color" data-color="border-gray" >Por seleccionar</button>
+   <div id="app">
+        <div class="top-bar">
+            <h2>Agregar Cliente</h2>
+            <form id="form-cliente">
+                <input type="text" id="nombre" placeholder="Nombre" required>
+                <input type="text" id="direccion" placeholder="Dirección" required>
+                <input type="text" id="horario" placeholder="Horario (opcional)">
+                <input type="number" id="bultos" placeholder="Bultos" value="0" min="0">
+                <button type="submit">➕ Agregar</button>
+            </form>
+            <hr>
+            <div class="summary-and-filters-container">
+                <div id="resumen-bultos">
+                    <strong>Totales por color:</strong>
+                    <ul>
+                        <li style="color:red">🔴 Camion 1: <span id="suma-rojo">0</span> Bultos - <span id="clientes-rojo">0</span> Clientes - Cant. Máx. 400</li>
+                        <li style="color:green">🟢 Camion 2: <span id="suma-verde">0</span> Bultos - <span id="clientes-verde">0</span> Clientes - Cant. Máx. 400</li>
+                        <li style="color:#1E90FF">🔵 Camion 3: <span id="suma-azul">0</span> Bultos - <span id="clientes-azul">0</span> Clientes - Cant. Máx. 400</li>
+                    </ul>
+                    <hr>
+                    <strong>Total Global:</strong>
+                    <ul>
+                        <li>📦 <span id="total-bultos-global">0</span> Bultos</li>
+                        <li>👤 <span id="total-clientes-global">0</span> Clientes</li>
+                    </ul>
                 </div>
-                <button id="seleccionar-todos">✅ Seleccionar todos</button>
-                <br>
-                <button id="deseleccionar-todos">❌ Deseleccionar todos</button>
-                <br>
-                <input type="text" id="filtro-clientes" placeholder="Buscar cliente..." style="width: 100%; padding: 6px; margin: 10px 0;">
-            </div>
-            <input type="file" id="excelFile" accept=".xlsx, .xls" />
-            <br>
-            <div id="checkboxes" class="clientes-scroll"></div>
 
-            <button id="scrollTopBtn" style="display: none; position: absolute; bottom: 20px; right: 10px; z-index: 100; font-size: 18px; border: none; outline: none; background-color: rgba(0, 0, 0, 0.7); color: white; cursor: pointer; padding: 10px 15px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">⬆️</button>
+                <div class="filtros-fijos">
+                    <div class="color-filter-buttons">
+                        <button class="filtro-color active" data-color="">Todos</button>
+                        <button class="filtro-color" data-color="border-red">🔴 Rojo</button>
+                        <button class="filtro-color" data-color="border-green">🟢 Verde</button>
+                        <button class="filtro-color" data-color="border-blue">🔵 Azul</button>
+                        <button class="filtro-color" data-color="border-gray">⚪ Por seleccionar</button>
+                    </div>
+                    <button id="seleccionar-todos">✅ Seleccionar todos</button>
+                    <button id="deseleccionar-todos">❌ Deseleccionar todos</button>
+                </div>
+            </div>
+            <input type="text" id="filtro-clientes" placeholder="Buscar cliente...">
         </div>
 
-        <div id="map"></div>
+        <div class="main-content">
+            <div class="checkbox-list">
+                <input type="file" id="excelFile" accept=".xlsx, .xls" />
+                <div id="checkboxes" class="clientes-scroll"></div>
+                <button id="scrollTopBtn">⬆️</button>
+            </div>
+
+            <div id="map"></div>
+        </div>
     </div>
-</div>
 
 <script>
+// ÚNICA DEFINICIÓN DE applyColor - FUERA DE DOMContentLoaded
+function applyColor(elementDiv, color) {
+    elementDiv.classList.remove('border-red', 'border-green', 'border-blue', 'border-gray', 'border-default');
+
+    if (color === '#DC143C') {
+        elementDiv.classList.add('border-red');
+    } else if (color === 'green') {
+        elementDiv.classList.add('border-green');
+    } else if (color === '#1E90FF') {
+        elementDiv.classList.add('border-blue');
+    } else if (color === '#708090') {
+        elementDiv.classList.add('border-gray');
+    } else {
+        elementDiv.classList.add('border-default');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map').setView([-34.53423856357239, -58.54456614470144], 11);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -176,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombre = document.getElementById('nombre').value.trim();
         const direccion = document.getElementById('direccion').value.trim();
         const horario = document.getElementById('horario').value.trim();
-        const bultos = parseInt(document.getElementById('bultos')?.value.trim()) || 0; // Asegúrate de que el input 'bultos' exista si lo usas aquí
+        const bultos = parseInt(document.getElementById('bultos')?.value.trim()) || 0;
 
         if (!nombre || !direccion || isNaN(bultos)) return alert('Completá todos los campos obligatorios.');
 
@@ -192,14 +208,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-  fetch('/api/clientes')
+    fetch('/api/clientes')
         .then(res => res.json())
         .then(clientes => {
             window.clientesData = clientes;
             const contenedor = document.getElementById('checkboxes');
             clientes.forEach(cliente => {
                 const div = document.createElement('div');
-                div.classList.add('cliente-info', 'fila-cliente', 'border-default');
+                div.classList.add('cliente-info', 'fila-cliente'); 
+
+                // El color inicial por defecto es gris
+                const initialColor = cliente.color || '#708090'; 
+                applyColor(div, initialColor); // Aplicar el color inicial al div
 
                 div.innerHTML = `
                     <input type="checkbox" class="cliente-checkbox" id="${cliente.nombre}">
@@ -207,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <strong>${cliente.nombre}</strong>
                         <div>🕒 ${cliente.horario || 'Sin horario'}</div>
                         <div>📦 <input type="number" value="${cliente.bultos || 0}" min="0" style="width:50px;"> bultos</div>
-                        <input type="hidden" id="color-${cliente.nombre}" value="#708090">
+                        <input type="hidden" id="color-${cliente.nombre}" value="${initialColor}"> 
                     </div>
                     <div class="info-der">
                         🎨
@@ -227,35 +247,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 const bultosInput = div.querySelector('input[type="number"]');
                 const colorButtons = div.querySelectorAll('.color-btn');
 
-                // Ahora, llama a applyColor pasándole `div` como primer argumento
                 colorButtons.forEach(btn => {
                     btn.addEventListener('click', () => {
                         const color = btn.dataset.color;
-                        colorInput.value = color;
-                        applyColor(div, color); // <--- CAMBIO AQUÍ
+                        colorInput.value = color; // Actualiza el valor del input hidden
+                        applyColor(div, color); // Aplica el color visual al div
                         if (checkbox.checked) updateMarker(cliente, color, bultosInput.value);
                         actualizarTotales();
                     });
                 });
-checkbox.addEventListener('change', () => {
-    const color = colorInput.value;
-    if (checkbox.checked) {
-        // Si está seleccionado, aplica el color que tenga asignado
-        applyColor(div, color); // Esto usará la lógica actualizada de applyColor
-        updateMarker(cliente, color, bultosInput.value);
-    } else {
-        // Si se deselecciona, quita los colores específicos y vuelve a 'border-default'
-        div.classList.remove('border-red', 'border-green', 'border-blue', 'border-gray'); // ✅ Quita también border-gray
-        div.classList.add('border-default'); // Vuelve al borde por defecto (gris claro)
-        removeMarker(cliente);
-    }
-    actualizarTotales();
-});
 
-                bultosInput.addEventListener('input', () => {
-                    if (checkbox.checked && markers[cliente.nombre]) updateMarker(cliente, colorInput.value, bultosInput.value);
+ checkbox.addEventListener('change', () => {
+                    let color = colorInput.value;
+                    if (checkbox.checked) {
+                        if (div.classList.contains('border-default') || color !== '#DC143C' && color !== 'green' && color !== '#1E90FF') {
+                             color = '#708090';
+                             colorInput.value = color;
+                        }
+                        applyColor(div, color);
+                        updateMarker(cliente, color, bultosInput.value);
+                    } else {
+                        removeMarker(cliente);
+                        // ✅ Al desmarcar, también aseguramos que el color visual vuelva a default
+                        color = ''; // o null si preferís
+                        colorInput.value = color;
+                        applyColor(div, '');
+                    }
                     actualizarTotales();
                 });
+
+                // ✅ Color inicial default si está destildado
+if (!checkbox.checked) {
+    colorInput.value = '';
+    applyColor(div, '');
+}
 
                 // Hover directo sin click
                 div.addEventListener('mouseover', () => markers[cliente.nombre]?._icon?.classList.add('hovered'));
@@ -274,70 +299,49 @@ checkbox.addEventListener('change', () => {
         });
 
 
+    function actualizarTotales() {
+        let rojoBultos = 0, verdeBultos = 0, azulBultos = 0;
+        let rojoClientes = 0, verdeClientes = 0, azulClientes = 0;
+        let totalBultosGlobal = 0;
+        let totalClientesGlobal = 0;
 
-// Define applyColor de forma que reciba el elemento `div` como argumento
-function applyColor(elementDiv, color) {
-    elementDiv.classList.remove('border-red', 'border-green', 'border-blue', 'border-gray', 'border-default');
+        document.querySelectorAll('.cliente-info').forEach(div => {
+            const checkbox = div.querySelector('.cliente-checkbox');
 
-    if (color === '#DC143C') {
-        elementDiv.classList.add('border-red');
-    } else if (color === 'green') {
-        elementDiv.classList.add('border-green');
-    } else if (color === '#1E90FF') {
-        elementDiv.classList.add('border-blue');
-    } else if (color === '#708090') {
-        elementDiv.classList.add('border-gray');
-    } else {
-        elementDiv.classList.add('border-default');
-    }
-}
+            if (checkbox.checked) { // Solo si el cliente está seleccionado
+                const color = div.querySelector('input[type="hidden"]').value;
+                const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
 
-function actualizarTotales() {
-    let rojoBultos = 0, verdeBultos = 0, azulBultos = 0;
-    let rojoClientes = 0, verdeClientes = 0, azulClientes = 0;
-    let totalBultosGlobal = 0;
-    let totalClientesGlobal = 0;
-
-    document.querySelectorAll('.cliente-info').forEach(div => {
-        const checkbox = div.querySelector('.cliente-checkbox');
-
-        if (checkbox.checked) { // Solo si el cliente está seleccionado
-            const color = div.querySelector('input[type="hidden"]').value;
-            const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
-
-            if (color === '#DC143C') { // Rojo
-                rojoBultos += bultos;
-                rojoClientes++;
-            } else if (color === 'green') { // Verde
-                verdeBultos += bultos;
-                verdeClientes++;
-            } else if (color === '#1E90FF') { // Azul
-                azulBultos += bultos;
-                azulClientes++;
+                if (color === '#DC143C') { // Rojo
+                    rojoBultos += bultos;
+                    rojoClientes++;
+                } else if (color === 'green') { // Verde
+                    verdeBultos += bultos;
+                    verdeClientes++;
+                } else if (color === '#1E90FF') { // Azul
+                    azulBultos += bultos;
+                    azulClientes++;
+                }
+                // Los bultos y clientes "por seleccionar" (gris) también contribuyen al total global
+                totalBultosGlobal += bultos;
+                totalClientesGlobal++;
             }
-            totalBultosGlobal += bultos;
-            totalClientesGlobal++;
-        }
-    });
+        });
 
-    // Actualizar los SPANs por color
-    document.getElementById('suma-rojo').textContent = rojoBultos;
-    document.getElementById('clientes-rojo').textContent = rojoClientes;
+        // Actualizar los SPANs por color
+        document.getElementById('suma-rojo').textContent = rojoBultos;
+        document.getElementById('clientes-rojo').textContent = rojoClientes;
 
-    document.getElementById('suma-verde').textContent = verdeBultos;
-    document.getElementById('clientes-verde').textContent = verdeClientes;
+        document.getElementById('suma-verde').textContent = verdeBultos;
+        document.getElementById('clientes-verde').textContent = verdeClientes;
 
-    document.getElementById('suma-azul').textContent = azulBultos;
-    document.getElementById('clientes-azul').textContent = azulClientes;
+        document.getElementById('suma-azul').textContent = azulBultos;
+        document.getElementById('clientes-azul').textContent = azulClientes;
 
-    // Actualizar los SPANs globales
-    document.getElementById('total-bultos-global').textContent = totalBultosGlobal;
-    document.getElementById('total-clientes-global').textContent = totalClientesGlobal;
-}
-
-
-
-
+        // Actualizar los SPANs globales
+        document.getElementById('total-bultos-global').textContent = totalBultosGlobal;
+        document.getElementById('total-clientes-global').textContent = totalClientesGlobal;
+    }
 
 
     const filtroInput = document.getElementById("filtro-clientes");
@@ -355,12 +359,14 @@ function actualizarTotales() {
     // 🎨 Filtro por color (botones)
     document.querySelectorAll('.filtro-color').forEach(btn => {
         btn.addEventListener('click', () => {
-            const colorClase = btn.dataset.color;
-            document.querySelectorAll('.cliente-info').forEach(cliente => {
-                if (!colorClase || cliente.classList.contains(colorClase)) {
-                    cliente.style.display = "flex";
+            const colorClase = btn.dataset.color; // Ej: "border-red", "border-gray", "" (para todos)
+            document.querySelectorAll('.cliente-info').forEach(clienteDiv => {
+                if (!colorClase) { // "Todos"
+                    clienteDiv.style.display = "flex";
+                } else if (clienteDiv.classList.contains(colorClase)) {
+                    clienteDiv.style.display = "flex";
                 } else {
-                    cliente.style.display = "none";
+                    clienteDiv.style.display = "none";
                 }
             });
             // Limpiar el input para evitar doble filtro
@@ -368,43 +374,47 @@ function actualizarTotales() {
         });
     });
 
-document.getElementById('seleccionar-todos').addEventListener('click', () => {
-    document.querySelectorAll('.cliente-info').forEach(div => {
-        const checkbox = div.querySelector('.cliente-checkbox');
+    document.getElementById('seleccionar-todos').addEventListener('click', () => {
+        document.querySelectorAll('.cliente-info').forEach(div => {
+            const checkbox = div.querySelector('.cliente-checkbox');
+            const colorInput = div.querySelector('input[type="hidden"]');
+            const bultosInput = div.querySelector('input[type="number"]');
 
-        if (!checkbox.checked) checkbox.checked = true;
+            if (!checkbox.checked) checkbox.checked = true;
 
-        const color = div.querySelector('input[type="hidden"]').value;
-        const bultos = parseInt(div.querySelector('input[type="number"]').value) || 0;
-        const nombre = checkbox.id;
+            let color = colorInput.value;
+            // Si el div tiene la clase 'border-default' o el colorInput no es un color de camión,
+            // asigna gris. Esto es para cuando se seleccionan "todos" y algunos no tienen color.
+            if (div.classList.contains('border-default') || (color !== '#DC143C' && color !== 'green' && color !== '#1E90FF')) {
+                 color = '#708090'; // Color gris
+                 colorInput.value = color; // Actualiza el input hidden
+            }
+            
+            const bultos = parseInt(bultosInput.value) || 0;
+            const nombre = checkbox.id;
 
-        // Aplicar color visual usando la función applyColor (simplificado)
-        applyColor(div, color); // ✅ Usar applyColor aquí para consistencia
+            applyColor(div, color);
 
-        // Agregar marcador (resto de tu lógica de marcador)
-        const cliente = { nombre, lat: 0, lng: 0, horario: '', zona: '' };
-        const realCliente = window.clientesData?.find(c => c.nombre === nombre);
-        if (realCliente) {
-            cliente.lat = realCliente.lat;
-            cliente.lng = realCliente.lng;
-            cliente.horario = realCliente.horario;
-            cliente.zona = realCliente.zona;
-            cliente.direccion = realCliente.direccion;
-        }
-        updateMarker(cliente, color, bultos);
+            const cliente = { nombre, lat: 0, lng: 0, horario: '', zona: '' };
+            const realCliente = window.clientesData?.find(c => c.nombre === nombre);
+            if (realCliente) {
+                cliente.lat = realCliente.lat;
+                cliente.lng = realCliente.lng;
+                cliente.horario = realCliente.horario;
+                cliente.zona = realCliente.zona;
+                cliente.direccion = realCliente.direccion;
+            }
+            updateMarker(cliente, color, bultos);
+        });
+        actualizarTotales();
     });
-    actualizarTotales();
-});
 
     document.getElementById('deseleccionar-todos').addEventListener('click', () => {
         document.querySelectorAll('.cliente-info').forEach(div => {
             const checkbox = div.querySelector('.cliente-checkbox');
-
             checkbox.checked = false;
 
-            div.classList.remove('border-red', 'border-green', 'border-blue','border-gray');
-            div.classList.add('border-default');
-
+            // Al deseleccionar todos, solo queremos quitar los marcadores, no cambiar el color visual del div
             const nombre = checkbox.id;
             const cliente = window.clientesData?.find(c => c.nombre === nombre);
             if (cliente) removeMarker(cliente);
@@ -416,7 +426,6 @@ document.getElementById('seleccionar-todos').addEventListener('click', () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Ensure the XLSX library is loaded
         if (typeof XLSX === 'undefined') {
             console.error('XLSX library not loaded. Please include it in your HTML.');
             return;
@@ -427,74 +436,79 @@ document.getElementById('seleccionar-todos').addEventListener('click', () => {
         const hoja = workbook.Sheets[workbook.SheetNames[0]];
         const filasRaw = XLSX.utils.sheet_to_json(hoja, { defval: "" });
 
-        console.log("Raw Excel Data:", filasRaw); // ADD THIS LINE FOR DEBUGGING
+        console.log("Raw Excel Data:", filasRaw);
 
         const porCliente = filasRaw.reduce((acc, f) => {
-            const nombre = (f["Cliente"] || "").trim(); // Assuming "Cliente" is the column header for client names
-            // Prioritize "Cant. Pedida", then "Cant. a Despachar", default to 0
+            const nombre = (f["Cliente"] || "").trim();
             const bultos = parseInt(f["Cant. Pedida"] ?? f["Cant. a Despachar"] ?? 0);
 
-            if (!nombre) return acc; // Skip rows without a client name
+            if (!nombre) return acc;
             acc[nombre] = (acc[nombre] || 0) + (isNaN(bultos) ? 0 : bultos);
             return acc;
         }, {});
 
+        let clientesNoEncontrados = [];
+
         Object.entries(porCliente).forEach(([nombre, totalBultos]) => {
-            // Correctly find the client div by targeting the checkbox's ID
             const checkboxElement = document.getElementById(nombre);
             if (!checkboxElement) {
-                console.warn(`Cliente "${nombre}" del Excel no encontrado en la lista de clientes.`);
+                clientesNoEncontrados.push(nombre);
                 return;
             }
 
             const divCli = checkboxElement.closest('.cliente-info');
-            if (!divCli) return; // Should not happen if checkboxElement is found, but good for safety
+            if (!divCli) return;
 
             const check = divCli.querySelector('.cliente-checkbox');
             const bultosInput = divCli.querySelector('input[type="number"]');
             const colorHidden = divCli.querySelector('input[type="hidden"]');
-            const color = colorHidden.value;
+            
+            // Si el cliente no tiene un color de camión asignado (es decir, el color es default o gris),
+            // se le asigna gris. Si ya tiene un color (rojo, verde, azul), se mantiene.
+            let colorToApply = colorHidden.value;
+            if (colorToApply !== '#DC143C' && colorToApply !== 'green' && colorToApply !== '#1E90FF') {
+                 colorToApply = '#708090'; // Color gris
+                 colorHidden.value = colorToApply; // Asegura que el hidden input también tenga el gris
+            }
 
-            // Mark checkbox, fill quantity, and update map
             check.checked = true;
             bultosInput.value = totalBultos;
 
+            applyColor(divCli, colorToApply);
 
-// Apply the color visually
-divCli.classList.remove('border-red', 'border-green', 'border-blue', 'border-default');
-if (color === '#DC143C') divCli.classList.add('border-red');
-else if (color === 'green') divCli.classList.add('border-green');
-else divCli.classList.add('border-blue'); // Esto es lo que estaba mal para el gris.
-
-// Find the full client data from window.clientesData for marker update
-
-
-            // Find the full client data from window.clientesData for marker update
             const clienteData = window.clientesData?.find(c => c.nombre === nombre);
             if (clienteData) {
-                // updateMarker expects an object with lat, lng, and direccion
-                updateMarker(clienteData, color, totalBultos);
+                updateMarker(clienteData, colorToApply, totalBultos);
             } else {
                 console.warn(`Could not find full data for client "${nombre}" in window.clientesData.`);
             }
         });
 
-        // Update totals after all clients are processed
+        if (clientesNoEncontrados.length > 0) {
+            const modalHtml = `
+                <div id="modal-clientes-no-encontrados" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                        <h3 style="margin-top: 0;">Clientes no encontrados</h3>
+                        <ul style="max-height: 200px; overflow-y: auto; padding-left: 20px;">
+                            ${clientesNoEncontrados.map(nombre => `<li>${nombre}</li>`).join('')}
+                        </ul>
+                        <button onclick="document.getElementById('modal-clientes-no-encontrados').remove()" style="margin-top: 10px;">Cerrar</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
         actualizarTotales();
     });
 
-    // ✅ Aquí se movió el JavaScript para el botón de scroll DENTRO del DOMContentLoaded
-    const checkboxesDiv = document.getElementById("checkboxes"); // Referencia al div que tiene scroll
+    const checkboxesDiv = document.getElementById("checkboxes");
     const scrollTopBtn = document.getElementById("scrollTopBtn");
 
-    // Mostrar/ocultar el botón basado en el scroll del DIV, no de la ventana
-    if (checkboxesDiv && scrollTopBtn) { // Asegurarse de que los elementos existan
+    if (checkboxesDiv && scrollTopBtn) {
         checkboxesDiv.addEventListener("scroll", () => {
-            // Muestra el botón si el scroll del div es mayor a, por ejemplo, 100px
             scrollTopBtn.style.display = checkboxesDiv.scrollTop > 100 ? "block" : "none";
         });
 
-        // Desplazarse al inicio del DIV cuando se hace clic en el botón
         scrollTopBtn.addEventListener("click", () => {
             checkboxesDiv.scrollTo({ top: 0, behavior: 'smooth' });
         });
