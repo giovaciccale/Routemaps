@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="font-size: 13px; line-height: 1.4; max-width: 220px;">
                 <strong style="text-transform: uppercase;">${c.nombre}</strong><br>
                 <span style="color: #333;">📍 ${direccionCorta}</span>
+                <span style="color: #666;">📦 ${bultos} bultos</span>
             </div>
         `, {
             permanent: false,
@@ -249,6 +250,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const checkbox = div.querySelector('.cliente-checkbox');
                 const colorInput = div.querySelector('input[type="hidden"]');
                 const bultosInput = div.querySelector('input[type="number"]');
+
+                bultosInput.addEventListener('input', () => {
+    if (checkbox.checked) {
+        const color = colorInput.value;
+        const clienteData = window.clientesData?.find(c => c.nombre === cliente.nombre);
+        if (clienteData) {
+            updateMarker(clienteData, color, bultosInput.value);
+            actualizarTotales();
+        }
+    }
+});
+
+
                 const colorButtons = div.querySelectorAll('.color-btn');
 
                 colorButtons.forEach(btn => {
@@ -449,7 +463,7 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
 
         const porCliente = filasRaw.reduce((acc, f) => {
             const nombre = (f["Cliente"] || "").trim();
-            const bultos = parseInt(f["Cant. Pedida"] ?? f["Cant. a Despachar"] ?? 0);
+            const bultos = parseInt(f["Cantidad"] ?? f["Cant. a Despachar"] ?? 0);
 
             if (!nombre) return acc;
             acc[nombre] = (acc[nombre] || 0) + (isNaN(bultos) ? 0 : bultos);
@@ -482,6 +496,7 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
 
             check.checked = true;
             bultosInput.value = totalBultos;
+            
 
             applyColor(divCli, colorToApply);
 
