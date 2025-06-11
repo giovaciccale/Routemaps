@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="font-size: 13px; line-height: 1.4; max-width: 220px;">
                 <strong style="text-transform: uppercase;">${c.nombre}</strong><br>
                 <span style="color: #333;">📍 ${direccionCorta}</span>
-                <span style="color: #666;">📦 ${bultos} bultos</span>
+                <span style="color: #666;">📦 ${parseInt(bultos) || 0} bultos</span>
             </div>
         `, {
             permanent: false,
@@ -522,6 +522,30 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
             `;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
+const salidaLat = -34.53423856357239;
+const salidaLng = -58.54456614470144;
+
+const lista = Array.from(document.querySelectorAll('.cliente-info'));
+
+lista.sort((a, b) => {
+    const nombreA = a.querySelector('.cliente-checkbox').id;
+    const nombreB = b.querySelector('.cliente-checkbox').id;
+
+    const clienteA = window.clientesData.find(c => c.nombre === nombreA);
+    const clienteB = window.clientesData.find(c => c.nombre === nombreB);
+
+    const distA = calcularDistancia(salidaLat, salidaLng, clienteA.lat, clienteA.lng);
+    const distB = calcularDistancia(salidaLat, salidaLng, clienteB.lat, clienteB.lng);
+
+    return distA - distB;
+});
+
+// Limpiar y reordenar el contenedor
+const contenedor = document.getElementById('checkboxes');
+contenedor.innerHTML = '';
+lista.forEach(div => contenedor.appendChild(div));
+
+
         actualizarTotales();
     });
 
@@ -539,5 +563,21 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
     } else {
         console.warn("Could not find 'checkboxes' div or 'scrollTopBtn'. Scroll to top functionality may not work.");
     }
+
+    function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radio de la tierra en km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+
+
+
 });
 </script>
