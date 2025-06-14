@@ -4,8 +4,8 @@
   "description": "",
   "main": "main.js",
 "scripts": {
-  "start": "node app.js",
-  "electron": "electron ."
+  "dev": "node app.js",
+  "start": "electron ."
 },
   "keywords": [],
   "author": "",
