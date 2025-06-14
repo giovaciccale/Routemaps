@@ -5,9 +5,10 @@ const clienteSchema = new mongoose.Schema({
   direccion: String,
   lat: Number,
   lng: Number,
-  horario: String,         // 🕒 Ej: "08 a 18 hs"
-  bultos: { type: Number, default: 0 }, // 📦 Valor por defecto 0
-  zona: String             // (opcional)
+  horario: String,
+  bultos: { type: Number, default: 0 },
+  zona: String,
+  color: { type: String, default: '#708090' } // 🎨 Color por defecto: gris
 });
 
 module.exports = mongoose.model('Cliente', clienteSchema);

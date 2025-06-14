@@ -296,8 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // ✅ Color inicial default si está destildado
 if (!checkbox.checked) {
-    colorInput.value = '';
-    applyColor(div, '');
+    // ✅ Mantené el color real en el hidden
+    applyColor(div, ''); // pinta default (sin borde)
 }
 
                 // Hover directo sin click
@@ -487,11 +487,7 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
             
             // Si el cliente no tiene un color de camión asignado (es decir, el color es default o gris),
             // se le asigna gris. Si ya tiene un color (rojo, verde, azul), se mantiene.
-            let colorToApply = colorHidden.value;
-            if (colorToApply !== '#DC143C' && colorToApply !== 'green' && colorToApply !== '#1E90FF') {
-                 colorToApply = '#708090'; // Color gris
-                 colorHidden.value = colorToApply; // Asegura que el hidden input también tenga el gris
-            }
+let colorToApply = colorHidden.value || '#708090';
 
             check.checked = true;
             bultosInput.value = totalBultos;
