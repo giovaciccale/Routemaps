@@ -1,0 +1,73 @@
+{{!-- login page --}}
+
+<link rel="stylesheet" href="/styles/user/login.css">
+
+{{!-- <div class="container-fluid m-3 shadow-navbar">
+    <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
+</div> --}}
+
+
+ <div class="logo-container">
+  <a href="/" class="navbar-brand">
+    <img src="/image/logo-negro.svg" alt="Trigo House Logo" class="trigo-logo">
+  </a>
+</div>
+
+
+
+
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="card z-3" id="card">
+                <div>
+                    <h3 class="text-center mt-5">Iniciar Sesión</h3>
+                </div>
+                {{!-- <div class="d-flex justify-content-around mt-5">
+                    <a href="/login">
+                        <h5 class="text-left">Login</h5>
+                    </a>
+                    <a href="/signup">
+                        <h5 class="text-right">Signup</h5>
+                    </a>
+                </div> --}}
+                <div class="card-body mt-3">
+                    <div class="card-body mt-3">
+                        <span id="msg" hidden>{{msg}}</span>
+                        <span id="err" hidden>{{err}}</span>
+
+                        <form class="login" id="loginform" action="/login" method="post" novalidate>
+                            <div class="mb-3 ">
+                                <span id="emailError" class="invalid-feedback" style="top: -2rem;">Please enter your
+                                    email.</span>
+                                <input type="email" class="form-control mb-3" id="email"
+                                     name="email" placeholder="Enter email" required>
+                            </div>
+                            <div class="mb-3 ">
+                                <span id="passwordError" class="invalid-feedback " style="top: -2rem;">Please enter your
+                                    password.</span>
+                                <input type="password" class="form-control" id="password" 
+                                    name="password" placeholder="Enter password" required>
+                            </div>
+                          
+
+                            <div class="d-flex justify-content-center gap-2 mt-3">
+                                <button type="submit" class="btn btn-dark text-white px-4">Login</button>
+
+                            </div>
+
+                            {{!-- <p class="text-center mt-2">Or login with</p>
+                            <div class="text-center">
+                                <a href="/auth/google" class="btn btn-google btn-sm"><i class="fab fa-google"></i></a>
+                                <a href="/auth/facebook" class="btn btn-facebook btn-sm"><i
+                                        class="fab fa-facebook-f"></i></a>
+                            </div> --}}
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/javaScript/user/login.js"></script>

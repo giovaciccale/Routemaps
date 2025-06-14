@@ -1,26 +1,25 @@
 const express = require('express');
 const router = express.Router();
+const authController = require('../controllers/authController');
 const clienteController = require('../controllers/clienteController');
 
-// Página principal
+// Página principal (mapa)
 router.get('/', clienteController.mostrarMapa);
 
-// Mostrar formulario para agregar cliente
-router.get('/nuevo', clienteController.mostrarFormulario);
+// Login
+router.get('/login', authController.loginPage);
+router.post('/login', authController.loginBtn);
 
-// Guardar nuevo cliente
+// Formulario cliente
+router.get('/nuevo', clienteController.mostrarFormulario);
 router.post('/nuevo', express.urlencoded({ extended: true }), clienteController.agregarCliente);
 
-// Obtener lista de clientes (API)
+// API clientes
 router.get('/api/clientes', clienteController.obtenerClientes);
 
-// Guardar nueva zona dibujada (desde Leaflet)
+// API zonas
 router.post('/api/zonas', clienteController.guardarZona);
-
-// Obtener zonas guardadas para mostrar en el mapa
 router.get('/api/zonas', clienteController.obtenerZonas);
-
-// eLIMINAR zonas guardadas 
 router.delete('/api/zonas/:id', clienteController.eliminarZona);
 
 module.exports = router;
