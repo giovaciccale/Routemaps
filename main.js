@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const childProcess = require('child_process');
+const waitOn = require('wait-on');
 
 let mainWindow;
 
@@ -14,7 +15,6 @@ function createWindow() {
     }
   });
 
-  // Cargá tu app web local
   mainWindow.loadURL('http://localhost:3000');
 
   mainWindow.on('closed', () => {
@@ -22,9 +22,9 @@ function createWindow() {
   });
 }
 
-// Ejecutá el servidor Node.js
 app.whenReady().then(() => {
-  childProcess.exec('node app.js', (err, stdout, stderr) => {
+  // Ejecutá el servidor backend
+  const serverProcess = childProcess.exec('node app.js', (err, stdout, stderr) => {
     if (err) {
       console.error('Error iniciando el servidor:', err);
     }
@@ -32,8 +32,14 @@ app.whenReady().then(() => {
     if (stderr) console.error(stderr);
   });
 
-  // Esperá un poquito antes de abrir la ventana (mientras arranca el server)
-  setTimeout(createWindow, 2000);
+  // Esperá hasta que el puerto 3000 esté disponible
+  waitOn({ resources: ['http://localhost:3000'], timeout: 10000 }, (err) => {
+    if (err) {
+      console.error('El servidor no respondió a tiempo:', err);
+    } else {
+      createWindow();
+    }
+  });
 });
 
 app.on('window-all-closed', () => {
