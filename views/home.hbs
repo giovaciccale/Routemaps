@@ -459,7 +459,6 @@ document.getElementById('deseleccionar-todos').addEventListener('click', () => {
         const hoja = workbook.Sheets[workbook.SheetNames[0]];
         const filasRaw = XLSX.utils.sheet_to_json(hoja, { defval: "" });
 
-        console.log("Raw Excel Data:", filasRaw);
 
         const porCliente = filasRaw.reduce((acc, f) => {
             const nombre = (f["Cliente"] || "").trim();
