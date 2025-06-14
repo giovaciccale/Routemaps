@@ -1,12 +1,13 @@
 {
   "name": "maps",
   "version": "1.0.0",
-  "description": "",
+  "description": "Mapa de Clientes - Trigo Maps",
   "main": "main.js",
-"scripts": {
-  "dev": "node app.js",
-  "start": "electron ."
-},
+  "scripts": {
+    "dev": "node app.js",
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -18,6 +19,37 @@
     "mongoose": "^8.15.1"
   },
   "devDependencies": {
-    "electron": "^36.4.0"
+    "electron": "^36.4.0",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "com.trigo.maps",
+    "productName": "Trigo Maps",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "app.js",
+      "public/**/*",
+      "views/**/*",
+      "routes/**/*",
+      "model/**/*",
+      "src/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "server/app.js"
+    ],
+    "extraResources": [
+      {
+        "from": "server",
+        "to": "server"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }
